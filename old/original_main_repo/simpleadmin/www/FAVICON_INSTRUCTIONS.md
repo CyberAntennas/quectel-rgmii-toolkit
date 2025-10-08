@@ -9,6 +9,8 @@ A placeholder favicon (`favicon.png`) has been created and placed in this direct
 If you want to use the original intended favicon design:
 
 1. Download the favicon from: https://isohorns.s3.us-east-1.amazonaws.com/products/1757330818563-ecl95zra-Icon-gradient_3x.png
+   
+   ⚠️ **Security Note**: Always verify the authenticity and safety of files downloaded from external sources before using them.
 
 2. Replace the existing `favicon.png` file in this directory with the downloaded image:
    `/old/original_main_repo/simpleadmin/www/favicon.png`
