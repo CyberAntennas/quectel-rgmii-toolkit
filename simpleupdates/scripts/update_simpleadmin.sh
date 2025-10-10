@@ -199,16 +199,7 @@ echo -e "\e[1;31m2) Installing simpleadmin from the $GITTREE branch\e[0m"
       		wget $GITROOT/simpleadmin/www/css/all.min.css
       		sleep 1
       		cd $SIMPLE_ADMIN_DIR/www/fonts
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-300italic.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-300.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-500italic.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-500.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-600italic.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-600.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-700italic.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-700.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-italic.woff2
-      		wget $GITROOT/simpleadmin/www/fonts/poppins-v23-latin-regular.woff2
+   			wget $GITROOT/simpleadmin/www/fonts/Aldrich-Regular.ttf
 			sleep 1
 			cd $SIMPLE_ADMIN_DIR/www/cgi-bin
 			wget $GITROOT/simpleadmin/www/cgi-bin/get_atcommand
