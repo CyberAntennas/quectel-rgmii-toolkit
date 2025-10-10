@@ -3,81 +3,133 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Simple Admin</title>
-    <!-- <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    /> -->
+    <title>Admin</title>
     <!-- Import all the bootstrap css files from css folder -->
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="css/bootstrap.min.css" />
 
     <!-- Logo -->
-    <link rel="simpleadmin-logo" href="favicon.ico" />
+    <link rel="icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
 
     <!--  Import BootStrap Javascript -->
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/alpinejs.min.js" defer></script>
   </head>
   <body>
-    <main>
-      <div class="container my-4" x-data="processAllInfos()">
-        <nav class="navbar navbar-expand-lg mt-2">
-          <div class="container-fluid">
-            <a class="navbar-brand" href="/"
-              ><span class="mb-0 h4">Simple Admin</span></a
-            >
-            <button
-              class="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarText"
-              aria-controls="navbarText"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarText">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="/"
-                    >Home</a
-                  >
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="network.html">Simple Network</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/scanner.html">Simple Scan</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/settings.html">Simple Settings</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/sms.html">SMS</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/console">Console</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/deviceinfo.html"
-                    >Device Information</a
-                  >
-                </li>
-              </ul>
-              <span class="navbar-text">
-                <button class="btn btn-link text-reset" id="darkModeToggle">
-                  Dark Mode
-                </button>
-              </span>
-            </div>
-          </div>
-        </nav>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+    </button>
 
-        <div class="row align-items-center mt-5 gap-md-3 gap-2">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <svg class="sidebar-logo" width="151" height="48" viewBox="0 0 151 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_1007_257)">
+            <path d="M0 47.9999L5.66698 31.2256H8.87615L14.5431 47.9999H12.3808L10.9468 43.6293H3.59631L2.18529 47.9999H0ZM4.21012 41.8082H10.3559L7.53391 33.1817H7.01178L4.21267 41.8082H4.21012Z" fill="currentColor"></path>
+            <path d="M21.3918 47.9999V31.2256H24.2139L31.7019 44.7219V31.2256H33.7726V47.9999H31.3148L23.9643 34.7531H23.4625V47.9999H21.3918Z" fill="currentColor"></path>
+            <path d="M45.5855 47.9999V33.1384H40.6011V31.2256H52.6405V33.1384H47.6562V47.9999H45.5855Z" fill="currentColor"></path>
+            <path d="M59.469 47.9999V31.2256H70.5304V33.1384H61.5397V38.2374H69.5728V40.1272H61.5397V46.0896H70.5304V48.0024H59.469V47.9999Z" fill="currentColor"></path>
+            <path d="M78.2451 47.9999V31.2256H81.0672L88.5552 44.7219V31.2256H90.6259V47.9999H88.1681L80.8175 34.7531H80.3158V47.9999H78.2451Z" fill="currentColor"></path>
+            <path d="M99.1379 47.9999V31.2256H101.96L109.448 44.7219V31.2256H111.519V47.9999H109.061L101.71 34.7531H101.209V47.9999H99.1379Z" fill="currentColor"></path>
+            <path d="M118.37 47.9999L124.037 31.2256H127.246L132.913 47.9999H130.751L129.317 43.6293H121.966L120.555 47.9999H118.37ZM122.58 41.8082H128.726L125.904 33.1817H125.382L122.583 41.8082H122.58Z" fill="currentColor"></path>
+            <path d="M139.285 47.9999V46.0871H147.548L148.775 44.8365V41.4898L147.548 40.2367H141.061L138.695 37.8706V33.6146L141.061 31.2256H149.983V33.1384H141.995L140.745 34.3889L140.768 37.1651L141.995 38.4157H148.483L150.849 40.8047V45.6057L148.483 47.9948H139.288L139.285 47.9999Z" fill="currentColor"></path>
+            <path d="M2.38905 16.7743L0 14.3827V2.38905L2.38905 0H9.96625L12.2891 2.32028L10.9698 3.66253L9.14868 1.84145H3.32378L2.07323 3.09201V13.6746L3.32378 14.9277H9.33206L11.1761 13.0837L12.4954 14.426L10.1267 16.7692H2.38905V16.7743Z" fill="currentColor"></path>
+            <path d="M38.668 16.7743V0H47.6587L50.0274 2.38905V6.32665L48.9806 7.73766L50.9163 9.69373V14.3827L48.5272 16.7717H38.6731L38.668 16.7743ZM40.7386 7.03216H46.9965L47.9516 5.73575V3.09456L46.724 1.82108L40.7386 1.844V7.03216ZM40.7386 14.9303H47.5874L48.838 13.6772V10.2413L47.5187 8.87615H40.7361V14.9303H40.7386Z" fill="currentColor"></path>
+            <path d="M58.9238 16.7743V0H69.9853V1.91277H60.9945V7.01178H69.0276V8.90162H60.9945V14.8641H69.9853V16.7768H58.9238V16.7743Z" fill="currentColor"></path>
+            <path d="M77.7002 16.7743V0H86.8718L89.2379 2.38905V7.73766L86.8718 10.1267H86.803L89.8288 16.7717H87.5315L84.549 10.1267H79.7709V16.7717H77.7002V16.7743ZM79.7709 8.28526H85.9371L87.1672 7.03216V3.09456L85.9371 1.844H79.7709V8.28526Z" fill="currentColor"></path>
+            <path d="M18.0249 0L23.8956 10.0605V16.7743H25.9663V10.0605L31.8167 0H18.0249ZM25.1487 7.64597H24.6928L21.3945 1.78287H28.4649L25.1487 7.64597Z" fill="#18B09F"></path>
+          </g>
+          <defs>
+            <clipPath id="clip0_1007_257">
+              <rect width="150.846" height="48" fill="white"></rect>
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="network.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+              </svg>
+              <span class="nav-text">Network</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="scanner.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+              </svg>
+              <span class="nav-text">Scanner</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="settings.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+              </svg>
+              <span class="nav-text">Settings</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="sms.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+              </svg>
+              <span class="nav-text">SMS</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/console">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20,3H4A1,1 0 0,0 3,4V20A1,1 0 0,0 4,21H20A1,1 0 0,0 21,20V4A1,1 0 0,0 20,3M5,5H19V19H5V5M7,7V9H9V7H7M11,7V9H13V7H11M15,7V9H17V7H15M7,11V13H9V11H7M11,11V13H13V11H11M15,11V13H17V11H15M7,15V17H9V15H7M11,15V17H13V15H11M15,15V17H17V15H15Z"/>
+              </svg>
+              <span class="nav-text">Console</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="deviceinfo.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              <span class="nav-text">Device Info</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="dark-mode-toggle" id="darkModeToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <button class="sidebar-toggle" id="sidebar-toggle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+        </svg>
+      </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <div class="row align-items-center mt-4 gap-md-3 gap-2">
           <div class="col align-self-center">
             <div class="card">
               <div
@@ -606,7 +658,14 @@
           </div>
         </div>
       </div>
+      <!-- Footer -->
+    <footer class="footer" id="footer">
+      <p>&copy; 2024 Cyber Antennas. For support, contact: <a href="mailto:support@cyberantennas.com">support@cyberantennas.com</a></p>
+    </footer>
     </main>
+    
+    <!-- Load sidebar and dark mode scripts -->
+    <script src="js/sidebar.js"></script>
     <script src="js/dark-mode.js"></script>
 
     <script>
