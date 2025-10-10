@@ -231,7 +231,19 @@
                 </div>
               </div>
               <div class="card-footer">
-                Still under development. Coming soon...
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">Status: <span x-text="watchCatStatus ? 'Active' : 'Inactive'" :class="watchCatStatus ? 'text-success' : 'text-danger'"></span></small>
+                  <div x-show="processInfo.running" class="text-muted small">
+                    PID: <span x-text="processInfo.pid"></span> | 
+                    Uptime: <span x-text="processInfo.uptime"></span> | 
+                    CPU: <span x-text="processInfo.cpu_usage"></span> | 
+                    Memory: <span x-text="processInfo.memory_usage"></span>
+                  </div>
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-info btn-sm" x-on:click="fetchWatchCatLogs()">Refresh Logs</button>
+                    <button type="button" class="btn btn-outline-warning btn-sm" x-show="processInfo.running" x-on:click="stopWatchcat()">Stop Process</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -272,6 +284,14 @@
           pingTimeout: "",
           pingFailureCount: "",
           response: "",
+          processInfo: {
+            running: false,
+            pid: null,
+            uptime: "",
+            cpu_usage: "",
+            memory_usage: "",
+            log_entries: 0
+          },
 
           setWatchCatSettings() {
             fetch(
@@ -290,6 +310,7 @@
               })
               .then(() => {
                 this.fetchWatchCatSettings();
+                this.fetchProcessInfo();
               })
               .catch((error) => {
                 console.error("Error:", error); // Handle any errors
@@ -321,19 +342,60 @@
                 // Check if the JSON is not empty
                 if (data) {
                   this.watchCatStatus = data.enabled === true;
-                  this.trackIP = data.track_ip;
-                  this.pingTimeout = data.ping_timeout;
-                  this.pingFailureCount = data.ping_failure_count;
+                  this.trackIP = data.track_ip || "";
+                  this.pingTimeout = data.ping_timeout || "";
+                  this.pingFailureCount = data.ping_failure_count || "";
                 }
               })
               .catch((error) => {
                 console.error("Error:", error); // Handle any errors
-                this.response = "An error occurred.";
+                this.response = "Error fetching watchcat status: " + error.message;
               });
+          },
+
+          // Fetch watchcat logs
+          fetchWatchCatLogs() {
+            fetch("/cgi-bin/get_watchcat_logs")
+              .then((response) => response.text())
+              .then((data) => {
+                this.response = data;
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                this.response = "Error fetching logs: " + error.message;
+              });
+          },
+
+          // Fetch process information
+          fetchProcessInfo() {
+            fetch("/cgi-bin/get_watchcat_info")
+              .then((response) => response.json())
+              .then((data) => {
+                this.processInfo = data;
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                this.processInfo = { running: false };
+              });
+          },
+
+          // Stop watchcat process manually
+          stopWatchcat() {
+            if (confirm("Are you sure you want to stop the Watchcat process?")) {
+              this.watchCatStatus = false;
+              this.setWatchCatSettings();
+            }
           },
 
           init() {
             this.fetchWatchCatSettings();
+            this.fetchWatchCatLogs();
+            this.fetchProcessInfo();
+            
+            // Auto-refresh process info every 30 seconds
+            setInterval(() => {
+              this.fetchProcessInfo();
+            }, 30000);
           },
         };
       }

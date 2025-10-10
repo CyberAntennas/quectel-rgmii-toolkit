@@ -58,15 +58,22 @@ fi
 if [ "$WATCHCAT_ENABLED" == "enable" ]; then
     echo "Content-type: text/plain"
     echo ""
-    echo "Watchcat is enabled. Tracking IP: $TRACK_IP, Ping timeout: $PING_TIMEOUT seconds, Ping failure count: $PING_FAILURE_COUNT"
+    echo "Enabling Watchcat..."
+    echo "Tracking IP: $TRACK_IP"
+    echo "Ping timeout: $PING_TIMEOUT seconds"
+    echo "Ping failure count: $PING_FAILURE_COUNT"
+    echo ""
+    
     # Call the create script here and use the needed parameters
-    sudo /usrdata/simpleadmin/script/create_watchcat.sh "$TRACK_IP" "$PING_TIMEOUT" "$PING_FAILURE_COUNT"
+    /usrdata/simpleadmin/script/create_watchcat.sh "$TRACK_IP" "$PING_TIMEOUT" "$PING_FAILURE_COUNT"
 else
     echo "Content-type: text/plain"
     echo ""
-    echo "Watchcat is disabled."
+    echo "Disabling Watchcat..."
+    echo ""
+    
     # Call the remove script here
-    sudo /usrdata/simpleadmin/script/remove_watchcat.sh
+    /usrdata/simpleadmin/script/remove_watchcat.sh
 fi
 
 exit 0

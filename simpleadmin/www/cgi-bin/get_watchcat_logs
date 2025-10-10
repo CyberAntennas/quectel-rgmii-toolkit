@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Content type header
+echo "Content-type: text/plain"
+echo ""
+
+# Check if watchcat is running and fetch logs
+LOG_FILE="/tmp/watchcat.log"
+PID_FILE="/tmp/watchcat.pid"
+
+if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE")
+    if ps -p "$PID" > /dev/null 2>&1; then
+        echo "Watchcat is running (PID: $PID)"
+        echo ""
+        if [ -f "$LOG_FILE" ]; then
+            echo "Recent logs:"
+            echo "============"
+            tail -20 "$LOG_FILE" 2>/dev/null || echo "No logs available"
+        else
+            echo "Log file not found. Watchcat may have just started."
+        fi
+    else
+        echo "Watchcat PID file exists but process is not running"
+        echo "PID file may be stale"
+        if [ -f "$LOG_FILE" ]; then
+            echo ""
+            echo "Last logs before stopping:"
+            echo "========================="
+            tail -10 "$LOG_FILE" 2>/dev/null || echo "No logs available"
+        fi
+    fi
+else
+    echo "Watchcat is not running"
+    echo ""
+    if [ -f "$LOG_FILE" ]; then
+        echo "Previous session logs:"
+        echo "===================="
+        tail -10 "$LOG_FILE" 2>/dev/null || echo "No previous logs available"
+    else
+        echo "No log file found"
+    fi
+fi

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Content type header
+echo "Content-type: application/json"
+echo ""
+
+# Get watchcat process information
+PID_FILE="/tmp/watchcat.pid"
+LOG_FILE="/tmp/watchcat.log"
+
+# Initialize JSON response
+if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE")
+    if ps -p "$PID" > /dev/null 2>&1; then
+        # Process is running
+        UPTIME=$(ps -o etime= -p "$PID" | tr -d ' ')
+        CPU_USAGE=$(ps -o %cpu= -p "$PID" | tr -d ' ')
+        MEM_USAGE=$(ps -o %mem= -p "$PID" | tr -d ' ')
+        
+        # Count log lines for activity
+        if [ -f "$LOG_FILE" ]; then
+            LOG_LINES=$(wc -l < "$LOG_FILE" 2>/dev/null || echo "0")
+        else
+            LOG_LINES=0
+        fi
+        
+        echo "{\"running\": true, \"pid\": $PID, \"uptime\": \"$UPTIME\", \"cpu_usage\": \"$CPU_USAGE%\", \"memory_usage\": \"$MEM_USAGE%\", \"log_entries\": $LOG_LINES}"
+    else
+        # PID file exists but process not running
+        echo "{\"running\": false, \"error\": \"PID file exists but process not running\"}"
+    fi
+else
+    # No PID file
+    echo "{\"running\": false}"
+fi
