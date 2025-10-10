@@ -824,7 +824,7 @@ echo "                                           :+##+.            "
 
     echo -e "\e[92m"
     echo "Welcome to iamromulan's RGMII Toolkit script for Quectel RMxxx Series modems!"
-    echo "Visit https://github.com/iamromulan for more!"
+    echo "Visit https://github.com/kmoz000 for more!"
     echo -e "\e[0m"
     echo "Select an option:"
     echo -e "\e[0m"
