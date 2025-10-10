@@ -128,31 +128,7 @@
 
     <!-- Main Content -->
     <main class="main-content" id="main-content">
-                    aria-current="page"
-                    >Simple Settings</a
-                  >
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/sms.html">SMS</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/console">Console</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/deviceinfo.html"
-                    >Device Information</a
-                  >
-                </li>
-              </ul>
-              <span class="navbar-text">
-                <button class="btn btn-link text-reset" id="darkModeToggle">
-                  Dark Mode
-                </button>
-              </span>
-            </div>
-          </div>
-        </nav>
-
+      <div class="container my-4" x-data="simpleSettings()" x-init="init()">
         <div class="row mt-5 mb-4">
           <div class="col">
             <div class="card">

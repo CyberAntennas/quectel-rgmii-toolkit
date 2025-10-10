@@ -191,6 +191,7 @@ echo -e "\e[1;31m2) Installing simpleadmin from the $GITTREE branch\e[0m"
 			wget $GITROOT/simpleadmin/www/js/generate-freq-box.js
 			wget $GITROOT/simpleadmin/www/js/parse-settings.js
 			wget $GITROOT/simpleadmin/www/js/populate-checkbox.js
+			wget $GITROOT/simpleadmin/www/js/sidebar.js
     		sleep 1
     		cd $SIMPLE_ADMIN_DIR/www/css
     		wget $GITROOT/simpleadmin/www/css/bootstrap.min.css
