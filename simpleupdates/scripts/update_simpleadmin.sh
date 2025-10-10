@@ -177,6 +177,7 @@ echo -e "\e[1;31m2) Installing simpleadmin from the $GITTREE branch\e[0m"
 			cd $SIMPLE_ADMIN_DIR/www
 			wget $GITROOT/simpleadmin/www/deviceinfo.html
    			wget $GITROOT/simpleadmin/www/favicon.ico
+			wget $GITROOT/simpleadmin/www/icon.png
 			wget $GITROOT/simpleadmin/www/index.html
     		wget $GITROOT/simpleadmin/www/network.html
 			wget $GITROOT/simpleadmin/www/settings.html
