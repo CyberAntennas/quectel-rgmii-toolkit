@@ -211,6 +211,8 @@ echo -e "\e[1;31m2) Installing simpleadmin from the $GITTREE branch\e[0m"
 			wget $GITROOT/simpleadmin/www/cgi-bin/send_sms
 			wget $GITROOT/simpleadmin/www/cgi-bin/get_uptime
 			wget $GITROOT/simpleadmin/www/cgi-bin/get_watchcat_status
+			wget $GITROOT/simpleadmin/www/cgi-bin/get_watchcat_logs
+			wget $GITROOT/simpleadmin/www/cgi-bin/get_watchcat_info
 			wget $GITROOT/simpleadmin/www/cgi-bin/set_watchcat
 			wget $GITROOT/simpleadmin/www/cgi-bin/watchcat_maker
 			sleep 1
