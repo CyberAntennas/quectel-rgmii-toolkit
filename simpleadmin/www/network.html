@@ -128,40 +128,9 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content" id="main-content">
-      <div class="container-fluid" x-data="cellLocking()" x-init="init()">
-                    href="network.html"
-                    aria-current="page"
-                    >Simple Network</a
-                  >
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/scanner.html">Simple Scan</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/settings.html">Simple Settings</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/sms.html">SMS</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/console">Console</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="deviceinfo.html"
-                    >Device Information</a
-                  >
-                </li>
-              </ul>
-              <span class="navbar-text">
-                <button class="btn btn-link text-reset" id="darkModeToggle">
-                  Dark Mode
-                </button>
-              </span>
-            </div>
-          </div>
-        </nav>
-
+    <main class="main-content" id="main-content" x-data="cellLocking()" x-init="init()">
+      <div class="container-fluid p-4">
+        <h2 class="mb-4">Network Settings</h2>
         <div class="row mt-5 gap-3">
           <div class="col">
             <div class="card">
@@ -1081,6 +1050,7 @@
         providerBandsCheckbox.checked = isChecked;
       }
     </script>
+    
     <!-- Load sidebar and dark mode scripts -->
     <script src="js/sidebar.js"></script>
     <script src="js/dark-mode.js"></script>
