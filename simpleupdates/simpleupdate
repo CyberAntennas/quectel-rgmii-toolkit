@@ -2,7 +2,7 @@
 
 # Configuration and directories
 CONFIG_FILE="/usrdata/simpleupdates/simpleupdate.conf"
-GITUSER="iamromulan"
+GITUSER="kmoz000"
 GITTREE="main"
 DIRECTORIES=("simpleadmin" "socat-at-bridge" "simplefirewall" "tailscale" "ttyd")
 BASE_URL="https://raw.githubusercontent.com/$GITUSER/quectel-rgmii-toolkit/$GITTREE"

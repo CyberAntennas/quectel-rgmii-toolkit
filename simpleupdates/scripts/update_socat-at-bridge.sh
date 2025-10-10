@@ -2,7 +2,7 @@
 
 # Define constants
 # Define GitHub repo info
-GITUSER="iamromulan"
+GITUSER="kmoz000"
 REPONAME="quectel-rgmii-toolkit"
 GITTREE="development-SDXLEMUR"
 GITMAINTREE="SDXLEMUR"
@@ -48,7 +48,7 @@ cat <<EOF > "$TMP_SCRIPT"
 #!/bin/bash
 
 # Define GitHub repo info
-GITUSER="iamromulan"
+GITUSER="kmoz000"
 REPONAME="quectel-rgmii-toolkit"
 GITTREE="SDXLEMUR"
 GITMAINTREE="SDXLEMUR"
