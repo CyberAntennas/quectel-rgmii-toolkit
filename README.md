@@ -3,7 +3,7 @@ Software deployment Toolkit for Quectel RM5xxx series 5G modems utilizing an m.2
 
 Current Branch: **SDXLEMUR**
 
-Please PR to [development-SDXLEMUR](https://github.com/iamromulan/quectel-rgmii-toolkit/tree/development-SDXLEMUR) instead of the main one :)
+Please PR to [development-SDXLEMUR](https://github.com/kmoz000/quectel-rgmii-toolkit/tree/development-SDXLEMUR) instead of the main one :)
 
 Fork development, and PR development to development :)
 
@@ -29,27 +29,27 @@ Fork development, and PR development to development :)
 **My goal** is for this to also include any new useful scripts or software for this modem and others that support RGMII mode.
 ## Screenshots
 
-![Toolkit](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_toolkit.png?raw=true)
-![Home](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_home.png?raw=true)
-![Simple Network](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_simplenetwork.png?raw=true)
-![Simple Scan](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_simplescan.png?raw=true)
-![Simple Settings](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_simplesettings.png?raw=true)
-![SMS](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_sms.png?raw=true)
-![Console](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_console.png?raw=true)
-![Device Info](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/dev_deviceinfo.png?raw=true)
+![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_toolkit.png?raw=true)
+![Home](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_home.png?raw=true)
+![Simple Network](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_simplenetwork.png?raw=true)
+![Simple Scan](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_simplescan.png?raw=true)
+![Simple Settings](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_simplesettings.png?raw=true)
+![SMS](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_sms.png?raw=true)
+![Console](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_console.png?raw=true)
+![Device Info](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/dev_deviceinfo.png?raw=true)
 
 # Devleopment Branch: the below commands will download the beta/work in progress toolkit 
 
 ## How to Use
 **To run the Toolkit:**
- - Open ADB & Fastboot++ covered in [Using ADB](https://github.com/iamromulan/quectel-rgmii-configuration-notes?tab=readme-ov-file#unlocking-and-using-adb) or just use adb
+ - Open ADB & Fastboot++ covered in [Using ADB](https://github.com/kmoz000/quectel-rgmii-configuration-notes?tab=readme-ov-file#unlocking-and-using-adb) or just use adb
  - Make sure your modem is connected by USB to your computer
  - Run `adb devices` to make sure your modem is detected by adb
- - Run `adb shell ping 8.8.8.8` to make sure the shell can access the internet. If you get an error, make sure the modem is connected to a cellular network and make sure `AT+QMAPWAC=1` as covered in the troubleshooting section: [I Can't get internet access from the Ethernet port (Common)](https://github.com/iamromulan/quectel-rgmii-configuration-notes/tree/main?tab=readme-ov-file#i-cant-get-internet-access-from-the-ethernet-port-common)
+ - Run `adb shell ping 8.8.8.8` to make sure the shell can access the internet. If you get an error, make sure the modem is connected to a cellular network and make sure `AT+QMAPWAC=1` as covered in the troubleshooting section: [I Can't get internet access from the Ethernet port (Common)](https://github.com/kmoz000/quectel-rgmii-configuration-notes/tree/main?tab=readme-ov-file#i-cant-get-internet-access-from-the-ethernet-port-common)
  - If you don't get an error you should be getting replies back endlessly, press `CTRL-C` to stop it.
  - Simply Copy/Paste this into your Command Prompt/Shell 
 ```bash
-adb shell "cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/iamromulan/quectel-rgmii-toolkit/SDXLEMUR/RMxxx_rgmii_toolkit.sh && chmod +x RMxxx_rgmii_toolkit.sh && ./RMxxx_rgmii_toolkit.sh" && cd /
+adb shell "cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/kmoz000/quectel-rgmii-toolkit/SDXLEMUR/RMxxx_rgmii_toolkit.sh && chmod +x RMxxx_rgmii_toolkit.sh && ./RMxxx_rgmii_toolkit.sh" && cd /
 ```
 
 **Or, if you want to stay in the modems shell when you are done**
@@ -59,10 +59,10 @@ adb shell
 ```
 Then run
 ```
-cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/iamromulan/quectel-rgmii-toolkit/SDXLEMUR/RMxxx_rgmii_toolkit.sh && chmod +x RMxxx_rgmii_toolkit.sh && ./RMxxx_rgmii_toolkit.sh && cd /
+cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/kmoz000/quectel-rgmii-toolkit/SDXLEMUR/RMxxx_rgmii_toolkit.sh && chmod +x RMxxx_rgmii_toolkit.sh && ./RMxxx_rgmii_toolkit.sh && cd /
 ```
 **You should see:**
-![Toolkit](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/iamromulantoolkit.png?raw=true)
+![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/kmoz000toolkit.png?raw=true)
 
 ## Tailscale Installation and Config
 
@@ -70,13 +70,13 @@ cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/iamr
 ### Installation:
 Open up the toolkit main menu and **press 4** to enter the Tailscale menu
 
-![Toolkit](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/tailscalemenu.png?raw=true)
+![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/tailscalemenu.png?raw=true)
 
 **Press 1, wait for it to install. This is a very large file for the system so give it some time.**
 
 **Once done and it says Tailscale installed successfully press 2/enter to configure it.**
 
-![Toolkit](https://github.com/iamromulan/quectel-rgmii-configuration-notes/blob/main/images/tailscaleconfig.png?raw=true)
+![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/tailscaleconfig.png?raw=true)
 
 If you want to, enable the Tailscale Web UI on port 8088 for configuration from the browser later by **pressing 1/enter**.
 
@@ -157,6 +157,6 @@ Simpleadmin heavily uses the AT Command Parsing Scripts (Basically a copy with n
 
 Tailscale was obtained through Tailscale's static build page. Since these modems have a 32-bit ARM processor on-board I used the arm package. https://pkgs.tailscale.com/stable/#static
 
-Entware/opkg was obtained through [Entware's wiki](https://github.com/Entware/Entware/wiki/Alternative-install-vs-standard) and the installer heavily modified by [iamromulan](https://github.com/iamromulan) for use with Quectel modems
+Entware/opkg was obtained through [Entware's wiki](https://github.com/Entware/Entware/wiki/Alternative-install-vs-standard) and the installer heavily modified by [kmoz000](https://github.com/kmoz000) for use with Quectel modems
 
 TTYd was obtained from the [TTYd Project](https://github.com/tsl0922/ttyd)
