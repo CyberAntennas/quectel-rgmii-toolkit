@@ -399,7 +399,7 @@
                               @click="switchToSimSlot(1)"
                               x-show="currentSimSlot !== 1"
                               style="font-size: 12px;"
-                              :disabled="isLoading || simInsertedStatus === 0"
+                              :disabled="isLoading"
                             >
                               Switch to Slot 1
                             </button>
@@ -409,7 +409,7 @@
                               @click="switchToSimSlot(2)"
                               x-show="currentSimSlot !== 2"
                               style="font-size: 12px;"
-                              :disabled="isLoading || simInsertedStatus === 0"
+                              :disabled="isLoading"
                             >
                               Switch to Slot 2
                             </button>
