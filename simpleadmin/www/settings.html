@@ -371,6 +371,48 @@
                             </button>
                           </td>
                         </tr>
+                        <tr>
+                          <th scope="row">SIM Slot Selection</th>
+                          <td class="d-flex gap-1">
+                            <div
+                              class="p-2 text-info-emphasis bg-info-subtle border border-info-subtle rounded-3"
+                              style="min-width: 120px; text-align: center;"
+                            >
+                              <span x-text="'Active: Slot ' + currentSimSlot"></span>
+                            </div>
+                            <div
+                              class="p-2 rounded-3"
+                              style="min-width: 100px; text-align: center;"
+                              :class="{
+                                'text-success-emphasis bg-success-subtle border border-success-subtle': simInsertedStatus === 1,
+                                'text-danger-emphasis bg-danger-subtle border border-danger-subtle': simInsertedStatus === 0,
+                                'text-warning-emphasis bg-warning-subtle border border-warning-subtle': simInsertedStatus === 2
+                              }"
+                            >
+                              <span x-show="simInsertedStatus === 1">SIM Inserted</span>
+                              <span x-show="simInsertedStatus === 0">No SIM</span>
+                              <span x-show="simInsertedStatus === 2">Unknown</span>
+                            </div>
+                            <button
+                              type="submit"
+                              class="btn btn-primary"
+                              @click="switchToSimSlot(1)"
+                              x-show="currentSimSlot !== 1"
+                              :disabled="isLoading"
+                            >
+                              Switch to Slot 1
+                            </button>
+                            <button
+                              type="submit"
+                              class="btn btn-primary"
+                              @click="switchToSimSlot(2)"
+                              x-show="currentSimSlot !== 2"
+                              :disabled="isLoading"
+                            >
+                              Switch to Slot 2
+                            </button>
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -526,6 +568,8 @@
           usbNetMode: "Unspecified",
           currentUsbNetMode: "Unknown",
           DNSProxyStatus: true,
+          currentSimSlot: 1,
+          simInsertedStatus: 2, // 0=Removed, 1=Inserted, 2=Unknown
 
           closeModal() {
             this.confirmModal = false;
@@ -536,7 +580,7 @@
             this.showModal = true;
           },
 
-          sendATCommand() {
+          async sendATCommand() {
             if (!this.atcmd) {
               // Use ATI as default command
               this.atcmd = "ATI";
@@ -546,51 +590,45 @@
               );
             }
             this.isLoading = true;
-            const encodedATCmd = encodeURIComponent(this.atcmd);
-            const url = `/cgi-bin/get_atcommand?atcmd=${encodedATCmd}`;
+            try {
+              const encodedATCmd = encodeURIComponent(this.atcmd);
+              const url = `/cgi-bin/get_atcommand?atcmd=${encodedATCmd}`;
 
-            fetch(url)
-              .then((res) => {
-                if (!res.ok) {
-                  throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                return res.text();
-              })
-              .then((data) => {
-                this.atCommandResponse = data;
-                this.isLoading = false;
-                this.isClean = false;
-                this.fetchCurrentSettings();
-              })
-              .catch((error) => {
-                console.error("Error: ", error);
-                this.showError = true;
-                this.isLoading = false;
-              });
+              const res = await fetch(url);
+              if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+              }
+              const data = await res.text();
+              this.atCommandResponse = data;
+              this.isClean = false;
+              await this.fetchCurrentSettings();
+            } catch (error) {
+              console.error("Error: ", error);
+              this.showError = true;
+            } finally {
+              this.isLoading = false;
+            }
           },
 
-          sendUserATCommand() {
+          async sendUserATCommand() {
             this.isLoading = true;
-            const encodedATCmd = encodeURIComponent(this.atcmd);
-            const url = `/cgi-bin/user_atcommand?atcmd=${encodedATCmd}`;
+            try {
+              const encodedATCmd = encodeURIComponent(this.atcmd);
+              const url = `/cgi-bin/user_atcommand?atcmd=${encodedATCmd}`;
 
-            fetch(url)
-              .then((res) => {
-                if (!res.ok) {
-                  throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                return res.text();
-              })
-              .then((data) => {
-                this.atCommandResponse = data;
-                this.isLoading = false;
-                this.isClean = false;
-              })
-              .catch((error) => {
-                console.error("Error: ", error);
-                this.showError = true;
-                this.isLoading = false;
-              });
+              const res = await fetch(url);
+              if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+              }
+              const data = await res.text();
+              this.atCommandResponse = data;
+              this.isClean = false;
+            } catch (error) {
+              console.error("Error: ", error);
+              this.showError = true;
+            } finally {
+              this.isLoading = false;
+            }
           },
 
           clearResponses() {
@@ -651,18 +689,16 @@
             this.sendATCommand();
           },
 
-          onBoardDNSProxyEnable() {
+          async onBoardDNSProxyEnable() {
             this.atcmd = 'AT+QMAP="DHCPV4DNS","enable"';
-            this.sendATCommand().then(() => {
-              this.fetchCurrentSettings();
-            });
+            await this.sendATCommand();
+            await this.fetchCurrentSettings();
           },
 
-          onBoardDNSProxyDisable() {
+          async onBoardDNSProxyDisable() {
             this.atcmd = 'AT+QMAP="DHCPV4DNS","disable"';
-            this.sendATCommand().then(() => {
-              this.fetchCurrentSettings();
-            });
+            await this.sendATCommand();
+            await this.fetchCurrentSettings();
           },
 
           usbNetModeChanger() {
@@ -688,48 +724,73 @@
             this.rebootDevice();
           },
 
-          fetchCurrentSettings() {
-            this.fetchATCommand =
-              'AT+QMAP="MPDN_RULE";+QMAP="DHCPV4DNS";+QCFG="usbnet"';
-            fetch(
-              "/cgi-bin/get_atcommand?" +
-                new URLSearchParams({
-                  atcmd: this.fetchATCommand,
-                })
-            )
-              .then((res) => {
-                return res.text();
-              })
-              .then((data) => {
-                // Set the value of currentSettingsResponse
-                this.currentSettingsResponse = data;
-                const currentData = data.split("\n");
-                console.log("Lines: ", currentData);
+          async switchToSimSlot(slot) {
+            if (slot === 1 || slot === 2) {
+              this.isLoading = true;
+              try {
+                this.atcmd = `AT+QUIMSLOT=${slot}`;
+                await this.sendATCommand();
+                
+                // Show reboot modal after switching
+                setTimeout(() => {
+                  this.showRebootModal();
+                }, 1000);
+              } catch (error) {
+                console.error("Error switching SIM slot: ", error);
+                this.showError = true;
+              } finally {
+                this.isLoading = false;
+              }
+            } else {
+              console.error("Invalid SIM slot. Must be 1 or 2.");
+            }
+          },
 
-                const testEthpass = currentData[1].match(
-                  /\+QMAP: "MPDN_rule",0,0,0,0,0/
-                );
+          async fetchCurrentSettings() {
+            this.isLoading = true;
+            try {
+              this.fetchATCommand =
+                'AT+QMAP="MPDN_RULE";+QMAP="DHCPV4DNS";+QCFG="usbnet";+QUIMSLOT?;+QSIMSTAT?';
+              
+              const res = await fetch(
+                "/cgi-bin/get_atcommand?" +
+                  new URLSearchParams({
+                    atcmd: this.fetchATCommand,
+                  })
+              );
+              
+              const data = await res.text();
+              
+              // Set the value of currentSettingsResponse
+              this.currentSettingsResponse = data;
+              const currentData = data.split("\n");
+              console.log("Lines: ", currentData);
 
-                if (testEthpass) {
-                  this.ipPassStatus = false;
-                } else {
-                  this.ipPassStatus = true;
-                }
+              const testEthpass = currentData[1].match(
+                /\+QMAP: "MPDN_rule",0,0,0,0,0/
+              );
 
-                const testDNSProxy = currentData[6].match(
-                  /\+QMAP: "DHCPV4DNS","enable"/
-                );
+              if (testEthpass) {
+                this.ipPassStatus = false;
+              } else {
+                this.ipPassStatus = true;
+              }
 
-                if (testDNSProxy) {
-                  this.DNSProxyStatus = true;
-                } else {
-                  this.DNSProxyStatus = false;
-                }
+              const testDNSProxy = currentData[6].match(
+                /\+QMAP: "DHCPV4DNS","enable"/
+              );
 
-                const testUSBNet = currentData[8].match(
-                  /\+QCFG: "usbnet",(\d)/
-                );
+              if (testDNSProxy) {
+                this.DNSProxyStatus = true;
+              } else {
+                this.DNSProxyStatus = false;
+              }
 
+              const testUSBNet = currentData[8].match(
+                /\+QCFG: "usbnet",(\d)/
+              );
+
+              if (testUSBNet && testUSBNet[1]) {
                 if (testUSBNet[1] == "0") {
                   this.currentUsbNetMode = "RMNET";
                 } else if (testUSBNet[1] == "1") {
@@ -741,50 +802,74 @@
                 } else {
                   this.currentUsbNetMode = "Unknown";
                 }
+              }
 
-                // clear atcmd
-                this.atcmd = "";
-              })
-              .catch((error) => {
-                console.error("Error: ", error);
-                this.showError = true;
-              });
+              // Parse SIM slot from response
+              const testSimSlot = currentData[10].match(
+                /\+QUIMSLOT:\s*(\d)/
+              );
+
+              if (testSimSlot && testSimSlot[1]) {
+                this.currentSimSlot = parseInt(testSimSlot[1]);
+              } else {
+                this.currentSimSlot = 1; // Default to slot 1
+              }
+
+              // Parse SIM insertion status from response
+              // Response format: +QSIMSTAT: <enable>,<insertedstatus>
+              const testSimStatus = currentData[12].match(
+                /\+QSIMSTAT:\s*(\d),(\d)/
+              );
+
+              if (testSimStatus && testSimStatus[2]) {
+                this.simInsertedStatus = parseInt(testSimStatus[2]);
+              } else {
+                this.simInsertedStatus = 2; // Default to unknown
+              }
+
+              // clear atcmd
+              this.atcmd = "";
+            } catch (error) {
+              console.error("Error: ", error);
+              this.showError = true;
+            } finally {
+              this.isLoading = false;
+            }
           },
 
-          fetchTTL() {
-            fetch("/cgi-bin/get_ttl_status")
-              .then((res) => res.json())
-              .then((data) => {
-                this.ttldata = data;
-                this.ttlStatus = this.ttldata.isEnabled;
-                this.ttlvalue = this.ttldata.ttl;
-              });
+          async fetchTTL() {
+            try {
+              const res = await fetch("/cgi-bin/get_ttl_status");
+              const data = await res.json();
+              this.ttldata = data;
+              this.ttlStatus = this.ttldata.isEnabled;
+              this.ttlvalue = this.ttldata.ttl;
+            } catch (error) {
+              console.error("Error fetching TTL: ", error);
+            }
           },
 
-          setTTL() {
+          async setTTL() {
             this.isLoading = true; // Set loading state while updating TTL
-            const ttlval = this.newTTL;
-            fetch(
-              "/cgi-bin/set_ttl?" + new URLSearchParams({ ttlvalue: ttlval })
-            )
-              .then((res) => res.text()) // Use res.text() instead of res.json()
-              .then((data) => {
-                // Manually handle the response data
-                console.log("Response from server:", data);
-                // You can try to parse the JSON manually or handle the response as needed
+            try {
+              const ttlval = this.newTTL;
+              const res = await fetch(
+                "/cgi-bin/set_ttl?" + new URLSearchParams({ ttlvalue: ttlval })
+              );
+              const data = await res.text();
+              console.log("Response from server:", data);
 
-                // Once TTL is updated, fetch the updated TTL data
-                this.fetchTTL();
-                this.isLoading = false; // Set loading state back to false
-              })
-              .catch((error) => {
-                console.error("Error updating TTL: ", error);
-                this.isLoading = false; // Ensure loading state is properly handled in case of error
-              });
+              // Once TTL is updated, fetch the updated TTL data
+              await this.fetchTTL();
+            } catch (error) {
+              console.error("Error updating TTL: ", error);
+            } finally {
+              this.isLoading = false; // Set loading state back to false
+            }
           },
-          init() {
-            this.fetchCurrentSettings();
-            this.fetchTTL();
+          async init() {
+            await this.fetchCurrentSettings();
+            await this.fetchTTL();
           },
         };
       }
