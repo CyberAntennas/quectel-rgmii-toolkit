@@ -222,6 +222,10 @@
                         <td class="col-md-2" x-text="lanIp"></td>
                       </tr>
                       <tr>
+                        <th scope="row">Ethernet MAC Address</th>
+                        <td class="col-md-2" x-text="ethMac"></td>
+                      </tr>
+                      <tr>
                         <th scope="row">WWAN IPv<sup>4</sup></th>
                         <td class="col-md-2" x-text="wwanIpv4"></td>
                       </tr>
@@ -288,6 +292,7 @@
         imei: "-",
         newImei: null,
         lanIp: "-",
+        ethMac: "-",
         wwanIpv4: "-",
         wwanIpv6: "-",
         phoneNumber: "Unknown",
@@ -379,8 +384,27 @@
             this.iccid = " ";
           }
 
-          this.simpleAdminVersion = "SimpleAdminRev-Beta-1.0";
           this.isLoading = false;
+          
+          // Fetch Ethernet MAC address
+          this.fetchEthMac();
+        },
+
+        fetchEthMac() {
+          fetch("/cgi-bin/get_system_info?info=eth_mac")
+            .then((res) => res.text())
+            .then((data) => {
+              const mac = data.trim();
+              if (mac && mac.match(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/)) {
+                this.ethMac = mac.toUpperCase();
+              } else {
+                this.ethMac = mac || "Not Available";
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching Ethernet MAC: ", error);
+              this.ethMac = "Error";
+            });
         },
 
         updateIMEI() {

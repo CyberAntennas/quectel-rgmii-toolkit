@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Function to decode URL-encoded strings
+function urldecode() { 
+    : "${*//+/ }"
+    echo -e "${_//%/\\x}"
+}
+
+# Parse query string
+if [ "${QUERY_STRING}" ]; then
+    export IFS="&"
+    for cmd in ${QUERY_STRING}; do
+        if [ "$(echo $cmd | grep '=')" ]; then
+            key=$(echo $cmd | awk -F '=' '{print $1}')
+            value=$(echo $cmd | awk -F '=' '{print $2}')
+            eval $key=$value
+        fi
+    done
+fi
+
+# Decode the info parameter
+info_type=$(urldecode "$info")
+
+echo "Content-type: text/plain"
+echo ""
+
+# Execute based on the info type requested
+case "$info_type" in
+    "eth_mac")
+        if [ -f /sys/class/net/eth0/address ]; then
+            cat /sys/class/net/eth0/address
+        else
+            echo "Not Available"
+        fi
+        ;;
+    "eth1_mac")
+        if [ -f /sys/class/net/eth1/address ]; then
+            cat /sys/class/net/eth1/address
+        else
+            echo "Not Available"
+        fi
+        ;;
+    "hostname")
+        hostname
+        ;;
+    "uptime")
+        uptime -p
+        ;;
+    *)
+        echo "Invalid info type"
+        ;;
+esac
