@@ -62,7 +62,7 @@ Then run
 cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/kmoz000/quectel-rgmii-toolkit/SDXLEMUR/RMxxx_rgmii_toolkit.sh && chmod +x RMxxx_rgmii_toolkit.sh && ./RMxxx_rgmii_toolkit.sh && cd /
 ```
 **You should see:**
-![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/kmoz000toolkit.png?raw=true)
+![Toolkit](https://github.com/CyberAntennas/quectel-rgmii-configuration-notes/blob/main/images/kmoz000toolkit.png?raw=true)
 
 ## Tailscale Installation and Config
 
@@ -70,13 +70,13 @@ cd /tmp && wget -O RMxxx_rgmii_toolkit.sh https://raw.githubusercontent.com/kmoz
 ### Installation:
 Open up the toolkit main menu and **press 4** to enter the Tailscale menu
 
-![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/tailscalemenu.png?raw=true)
+![Toolkit](https://github.com/CyberAntennas/quectel-rgmii-configuration-notes/blob/main/images/tailscalemenu.png?raw=true)
 
 **Press 1, wait for it to install. This is a very large file for the system so give it some time.**
 
 **Once done and it says Tailscale installed successfully press 2/enter to configure it.**
 
-![Toolkit](https://github.com/kmoz000/quectel-rgmii-configuration-notes/blob/main/images/tailscaleconfig.png?raw=true)
+![Toolkit](https://github.com/CyberAntennas/quectel-rgmii-configuration-notes/blob/main/images/tailscaleconfig.png?raw=true)
 
 If you want to, enable the Tailscale Web UI on port 8088 for configuration from the browser later by **pressing 1/enter**.
 
@@ -151,6 +151,8 @@ Thank You to:
 [dr-dolomite](https://github.com/dr-dolomite) for some major stat page improvements and this repos first approved external PR!
 
 [tarunVreddy](https://github.com/tarunVreddy) for helping with the SA band aggregation parse
+
+[KMOz](https://github.com/kmoz000) Cyberantenna toolkit fork maintainer/developer 
 
 ### Existing projects:
 Simpleadmin heavily uses the AT Command Parsing Scripts (Basically a copy with new changes and tweaks) of Dairyman's Rooter Source https://github.com/ofmodemsandmen/ROOterSource2203
