@@ -1,0 +1,84 @@
+#!/bin/bash
+
+DEVICE=/dev/ttyOUT2
+TIMEOUT=3
+
+# Array to track temp files for cleanup
+TEMP_FILES=()
+
+# Cleanup function
+cleanup() {
+    for file in "${TEMP_FILES[@]}"; do
+        [ -f "$file" ] && rm -f "$file"
+    done
+}
+
+# Set trap to cleanup on exit
+trap cleanup EXIT
+
+setup_device() {
+    [ -c "$DEVICE" ] || { echo "Device not found!" >&2; return 1; }
+    stty -F $DEVICE 115200 -echo -icanon min 1 time 0 2>/dev/null
+}
+
+send_at_command() {
+    local command="$1"
+    local tmpfile=$(mktemp /tmp/atcmd.XXXXXX)
+    TEMP_FILES+=("$tmpfile")  # Add to cleanup array
+    
+    # Clear buffer
+    timeout 1 dd if=$DEVICE of=/dev/null status=none bs=1 count=4096 2>/dev/null
+    sleep 0.1
+    
+    # Send command
+    echo -e "$command\r" > $DEVICE
+    
+    # Read response with timeout
+    timeout $TIMEOUT cat $DEVICE > "$tmpfile" 2>/dev/null &
+    wait $! 2>/dev/null
+    
+    # Process response
+    local in_response=0
+    while IFS= read -r line; do
+        line=$(echo "$line" | tr -d '\r')
+        if [ -n "$line" ]; then
+            if [[ "$line" == "$command" ]]; then
+                in_response=1
+                continue
+            fi
+            if [ $in_response -eq 1 ] || [[ "$line" != "$command" ]]; then
+                echo -e "\033[0;32m$line\033[0m"
+                in_response=1
+            fi
+        fi
+    done < "$tmpfile"
+    
+    rm -f "$tmpfile"
+    # Remove from array after cleanup
+    TEMP_FILES=("${TEMP_FILES[@]/$tmpfile}")
+}
+
+# Main
+setup_device || exit 1
+
+if [ $# -gt 0 ]; then
+    send_at_command "$*"
+else
+    echo -e "\033[0;36mType 'exit' to end the session.\033[0m"
+    while true; do
+        echo -en "\033[0;36mEnter AT Command: \033[0m"
+        read user_input
+        
+        case "$user_input" in
+            "exit")
+                echo -e "\033[0;32mExiting...\033[0m"
+                break
+                ;;
+            "")
+                ;;
+            *)
+                send_at_command "$user_input"
+                ;;
+        esac
+    done
+fi

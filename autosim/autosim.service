@@ -1,0 +1,18 @@
+[Unit]
+Description=Quectel Auto SIM Slot Monitor
+Wants=network-pre.target
+After=network-pre.target NetworkManager.service systemd-resolved.service
+
+[Service]
+ExecStart=/sbin/autosim
+Restart=on-failure
+RestartSec=5s
+Type=simple
+User=root
+Group=root
+KillMode=process
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,206 @@
+#!/bin/sh
+# Persistent Quectel SIM slot monitor and auto-switcher
+ATCMD="/bin/atcmd"
+SLOTS="1 2"
+LOOP_SLEEP=5
+SLOT_SLEEP=4
+TEST_MODE=0
+DEBUG=1  # Enable debug logging
+
+# Check for test flag
+if [ "$1" = "--test" ] || [ "$1" = "-t" ]; then
+    TEST_MODE=1
+fi
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
+
+get_current_slot() {
+    # Extract ONLY the digit after +QUIMSLOT:
+    $ATCMD "AT+QUIMSLOT?" 2>/dev/null | grep -oE '\+QUIMSLOT: [0-9]' | grep -oE '[0-9]'
+}
+
+get_sim_status() {
+    # Extract ONLY the pattern digit,digit (ignores everything else including ANSI codes)
+    $ATCMD "AT+QSIMSTAT?" 2>/dev/null | grep -oE '[0-9],[0-9]' | head -1
+}
+
+is_sim_inserted() {
+    local status="$1"
+    
+    # Extract first and second values and strip all whitespace
+    local first=$(echo "$status" | cut -d',' -f1 | tr -d ' \t\r\n')
+    local second=$(echo "$status" | cut -d',' -f2 | tr -d ' \t\r\n')
+    
+    # Debug logging with hex dump
+    if [ $DEBUG -eq 1 ]; then
+        log "  [DEBUG] is_sim_inserted: input='$status'"
+        log "  [DEBUG] first='$first' (hex: $(echo -n "$first" | od -A n -t x1))"
+        log "  [DEBUG] second='$second' (hex: $(echo -n "$second" | od -A n -t x1))"
+        log "  [DEBUG] Literal '1' (hex: $(echo -n "1" | od -A n -t x1))"
+    fi
+    
+    # Check if first is 1
+    if [ "$first" = "1" ]; then
+        if [ $DEBUG -eq 1 ]; then
+            log "  [DEBUG] first='$first' matches '1' -> RETURN TRUE"
+        fi
+        return 0  # SIM inserted
+    fi
+    
+    # Check if second is 1
+    if [ "$second" = "1" ]; then
+        if [ $DEBUG -eq 1 ]; then
+            log "  [DEBUG] second='$second' matches '1' -> RETURN TRUE"
+        fi
+        return 0  # SIM inserted
+    fi
+    
+    # Neither is 1
+    if [ $DEBUG -eq 1 ]; then
+        log "  [DEBUG] Neither matches '1' -> RETURN FALSE"
+    fi
+    return 1  # No SIM
+}
+
+switch_slot() {
+    local slot="$1"
+    log "Switching to slot $slot..."
+    local response=$($ATCMD "AT+QUIMSLOT=$slot" 2>&1)
+    
+    # Check for +QUSIM: 1 (SIM inserted) in the response
+    if echo "$response" | grep -q "+QUSIM: 1"; then
+        log "Modem reports: SIM detected in slot $slot (+QUSIM: 1)"
+        return 0  # SIM found
+    elif echo "$response" | grep -q "+QUSIM: 0"; then
+        log "Modem reports: No SIM in slot $slot (+QUSIM: 0)"
+        return 1  # No SIM
+    else
+        # Fallback: wait and check manually
+        log "No +QUSIM response, checking manually..."
+        sleep $SLOT_SLEEP
+        return 2  # Need to check manually
+    fi
+}
+
+log "Starting Quectel Auto SIM Slot Monitor (DEBUG=$DEBUG)"
+
+# TEST MODE: Run once and show parsing details
+if [ $TEST_MODE -eq 1 ]; then
+    log "=== TEST MODE ==="
+    log ""
+    
+    log "1. Testing AT+QUIMSLOT? (get current slot):"
+    RAW_SLOT=$($ATCMD "AT+QUIMSLOT?" 2>/dev/null)
+    echo "   Raw output:"
+    echo "$RAW_SLOT" | sed 's/^/   | /'
+    CURSLOT=$(get_current_slot)
+    log "   Parsed slot: '$CURSLOT'"
+    log ""
+    
+    log "2. Testing AT+QSIMSTAT? (get SIM status):"
+    RAW_STAT=$($ATCMD "AT+QSIMSTAT?" 2>/dev/null)
+    echo "   Raw output:"
+    echo "$RAW_STAT" | sed 's/^/   | /'
+    QSTAT=$(get_sim_status)
+    log "   Parsed status: '$QSTAT'"
+    log "   Status length: ${#QSTAT} characters"
+    log "   Status hex dump: $(echo -n "$QSTAT" | od -A n -t x1)"
+    log ""
+    
+    log "3. Testing is_sim_inserted function with actual status:"
+    if is_sim_inserted "$QSTAT"; then
+        log "   Result: SIM IS INSERTED"
+    else
+        log "   Result: SIM NOT INSERTED"
+    fi
+    log ""
+    
+    log "4. Testing with hardcoded statuses:"
+    for test_status in "0,0" "0,1" "1,0" "1,1"; do
+        if is_sim_inserted "$test_status"; then
+            log "   '$test_status' -> SIM INSERTED"
+        else
+            log "   '$test_status' -> NO SIM"
+        fi
+    done
+    log ""
+    
+    log "5. Summary:"
+    log "   Current slot: $CURSLOT"
+    log "   SIM status: $QSTAT"
+    if is_sim_inserted "$QSTAT"; then
+        log "   Conclusion: SIM is present in slot $CURSLOT"
+    else
+        log "   Conclusion: No SIM in slot $CURSLOT"
+    fi
+    log ""
+    log "=== TEST COMPLETE ==="
+    exit 0
+fi
+
+# MAIN LOOP
+while true; do
+    CURSLOT=$(get_current_slot)
+    QSTAT=$(get_sim_status)
+    
+    if [ -z "$CURSLOT" ]; then
+        log "ERROR: Could not read current slot, retrying..."
+        sleep $LOOP_SLEEP
+        continue
+    fi
+    
+    if [ -z "$QSTAT" ]; then
+        log "ERROR: Could not read SIM status, retrying..."
+        sleep $LOOP_SLEEP
+        continue
+    fi
+    
+    log "Current slot: $CURSLOT, Status: $QSTAT"
+    
+    # Check if SIM is present in current slot
+    if is_sim_inserted "$QSTAT"; then
+        log "SIM detected in slot $CURSLOT - OK"
+        sleep $LOOP_SLEEP
+        continue  # Skip to next iteration without searching other slots
+    else
+        # No SIM in current slot - search other slots
+        log "No SIM in slot $CURSLOT - searching other slots..."
+    fi
+    
+    SWITCHED=0
+    
+    for SLOT in $SLOTS; do
+        # Skip current slot
+        [ "$SLOT" = "$CURSLOT" ] && continue
+        
+        log "Testing slot $SLOT..."
+        switch_slot "$SLOT"
+        SWITCH_RESULT=$?
+        
+        if [ $SWITCH_RESULT -eq 0 ]; then
+            # +QUSIM: 1 detected, SIM found
+            log "SIM found in slot $SLOT!"
+            SWITCHED=1
+            break
+        elif [ $SWITCH_RESULT -eq 1 ]; then
+            # +QUSIM: 0 detected, no SIM
+            log "No SIM in slot $SLOT"
+        else
+            # No +QUSIM response, check manually
+            QSTAT=$(get_sim_status)
+            log "Slot $SLOT status: $QSTAT"
+            
+            if is_sim_inserted "$QSTAT"; then
+                log "SIM found in slot $SLOT!"
+                SWITCHED=1
+                break
+            else
+                log "No SIM in slot $SLOT"
+            fi
+        fi
+    done
+    
+    sleep $LOOP_SLEEP
+done

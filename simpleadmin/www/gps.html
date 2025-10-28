@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GPS Tracking</title>
+    <!-- Import all the bootstrap css files from css folder -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+    <!-- Logo -->
+    <link rel="icon" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+
+    <!--  Import BootStrap Javascript -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/alpinejs.min.js" defer></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+  </head>
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <svg class="sidebar-logo" width="151" height="48" viewBox="0 0 151 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_1007_257)">
+            <path d="M0 47.9999L5.66698 31.2256H8.87615L14.5431 47.9999H12.3808L10.9468 43.6293H3.59631L2.18529 47.9999H0ZM4.21012 41.8082H10.3559L7.53391 33.1817H7.01178L4.21267 41.8082H4.21012Z" fill="currentColor"></path>
+            <path d="M21.3918 47.9999V31.2256H24.2139L31.7019 44.7219V31.2256H33.7726V47.9999H31.3148L23.9643 34.7531H23.4625V47.9999H21.3918Z" fill="currentColor"></path>
+            <path d="M45.5855 47.9999V33.1384H40.6011V31.2256H52.6405V33.1384H47.6562V47.9999H45.5855Z" fill="currentColor"></path>
+            <path d="M59.469 47.9999V31.2256H70.5304V33.1384H61.5397V38.2374H69.5728V40.1272H61.5397V46.0896H70.5304V48.0024H59.469V47.9999Z" fill="currentColor"></path>
+            <path d="M78.2451 47.9999V31.2256H81.0672L88.5552 44.7219V31.2256H90.6259V47.9999H88.1681L80.8175 34.7531H80.3158V47.9999H78.2451Z" fill="currentColor"></path>
+            <path d="M99.1379 47.9999V31.2256H101.96L109.448 44.7219V31.2256H111.519V47.9999H109.061L101.71 34.7531H101.209V47.9999H99.1379Z" fill="currentColor"></path>
+            <path d="M118.37 47.9999L124.037 31.2256H127.246L132.913 47.9999H130.751L129.317 43.6293H121.966L120.555 47.9999H118.37ZM122.58 41.8082H128.726L125.904 33.1817H125.382L122.583 41.8082H122.58Z" fill="currentColor"></path>
+            <path d="M139.285 47.9999V46.0871H147.548L148.775 44.8365V41.4898L147.548 40.2367H141.061L138.695 37.8706V33.6146L141.061 31.2256H149.983V33.1384H141.995L140.745 34.3889L140.768 37.1651L141.995 38.4157H148.483L150.849 40.8047V45.6057L148.483 47.9948H139.288L139.285 47.9999Z" fill="currentColor"></path>
+            <path d="M2.38905 16.7743L0 14.3827V2.38905L2.38905 0H9.96625L12.2891 2.32028L10.9698 3.66253L9.14868 1.84145H3.32378L2.07323 3.09201V13.6746L3.32378 14.9277H9.33206L11.1761 13.0837L12.4954 14.426L10.1267 16.7692H2.38905V16.7743Z" fill="currentColor"></path>
+            <path d="M38.668 16.7743V0H47.6587L50.0274 2.38905V6.32665L48.9806 7.73766L50.9163 9.69373V14.3827L48.5272 16.7717H38.6731L38.668 16.7743ZM40.7386 7.03216H46.9965L47.9516 5.73575V3.09456L46.724 1.82108L40.7386 1.844V7.03216ZM40.7386 14.9303H47.5874L48.838 13.6772V10.2413L47.5187 8.87615H40.7361V14.9303H40.7386Z" fill="currentColor"></path>
+            <path d="M58.9238 16.7743V0H69.9853V1.91277H60.9945V7.01178H69.0276V8.90162H60.9945V14.8641H69.9853V16.7768H58.9238V16.7743Z" fill="currentColor"></path>
+            <path d="M77.7002 16.7743V0H86.8718L89.2379 2.38905V7.73766L86.8718 10.1267H86.803L89.8288 16.7717H87.5315L84.549 10.1267H79.7709V16.7717H77.7002V16.7743ZM79.7709 8.28526H85.9371L87.1672 7.03216V3.09456L85.9371 1.844H79.7709V8.28526Z" fill="currentColor"></path>
+            <path d="M18.0249 0L23.8956 10.0605V16.7743H25.9663V10.0605L31.8167 0H18.0249ZM25.1487 7.64597H24.6928L21.3945 1.78287H28.4649L25.1487 7.64597Z" fill="#18B09F"></path>
+          </g>
+          <defs>
+            <clipPath id="clip0_1007_257">
+              <rect width="150.846" height="48" fill="white"></rect>
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="/">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="network.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+              </svg>
+              <span class="nav-text">Network</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="scanner.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+              </svg>
+              <span class="nav-text">Scanner</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="settings.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+              </svg>
+              <span class="nav-text">Settings</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="sms.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+              </svg>
+              <span class="nav-text">SMS</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="gps.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2C13.1,2 14,2.9 14,4C14,5.1 13.1,6 12,6C10.9,6 10,5.1 10,4C10,2.9 10.9,2 12,2M21,9V7L19,5.5C18.5,5.1 17.8,5.1 17.4,5.5L15.8,7.1C16.1,7.4 16.4,7.7 16.7,8C17,8.3 17.3,8.6 17.6,8.9L19.2,7.3C19.6,6.9 19.6,6.2 19.2,5.8L21,7.3V9M13,1C13,0.4 12.6,0 12,0C11.4,0 11,0.4 11,1V3C11,3.6 11.4,4 12,4C12.6,4 13,3.6 13,3V1M19.1,11.1C19.6,10.6 19.6,9.8 19.1,9.3L17.7,7.9C17.2,7.4 16.4,7.4 15.9,7.9L14.5,9.3C14,9.8 14,10.6 14.5,11.1L15.9,12.5C16.4,13 17.2,13 17.7,12.5L19.1,11.1M5,7L3,9V7L4.8,5.8C4.4,6.2 4.4,6.9 4.8,7.3L6.4,8.9C6.7,8.6 7,8.3 7.3,8C7.6,7.7 7.9,7.4 8.2,7.1L6.6,5.5C6.2,5.1 5.5,5.1 5,5.5V7M12,12L10.5,17L7,14L2,20H22L17,14L13.5,17L12,12Z"/>
+              </svg>
+              <span class="nav-text">GPS Tracking</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/console">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20,3H4A1,1 0 0,0 3,4V20A1,1 0 0,0 4,21H20A1,1 0 0,0 21,20V4A1,1 0 0,0 20,3M5,5H19V19H5V5M7,7V9H9V7H7M11,7V9H13V7H11M15,7V9H17V7H15M7,11V13H9V11H7M11,11V13H13V11H11M15,11V13H17V11H15M7,15V17H9V15H7M11,15V17H13V15H11M15,15V17H17V15H15Z"/>
+              </svg>
+              <span class="nav-text">Console</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="deviceinfo.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+              <span class="nav-text">Device Info</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="dark-mode-toggle" id="darkModeToggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69z"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container-fluid py-4" x-data="gpsComponent()">
+        <!-- GPS Status Header -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <svg class="me-2" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,2C13.1,2 14,2.9 14,4C14,5.1 13.1,6 12,6C10.9,6 10,5.1 10,4C10,2.9 10.9,2 12,2M21,9V7L19,5.5C18.5,5.1 17.8,5.1 17.4,5.5L15.8,7.1C16.1,7.4 16.4,7.7 16.7,8C17,8.3 17.3,8.6 17.6,8.9L19.2,7.3C19.6,6.9 19.6,6.2 19.2,5.8L21,7.3V9M13,1C13,0.4 12.6,0 12,0C11.4,0 11,0.4 11,1V3C11,3.6 11.4,4 12,4C12.6,4 13,3.6 13,3V1M19.1,11.1C19.6,10.6 19.6,9.8 19.1,9.3L17.7,7.9C17.2,7.4 16.4,7.4 15.9,7.9L14.5,9.3C14,9.8 14,10.6 14.5,11.1L15.9,12.5C16.4,13 17.2,13 17.7,12.5L19.1,11.1M5,7L3,9V7L4.8,5.8C4.4,6.2 4.4,6.9 4.8,7.3L6.4,8.9C6.7,8.6 7,8.3 7.3,8C7.6,7.7 7.9,7.4 8.2,7.1L6.6,5.5C6.2,5.1 5.5,5.1 5,5.5V7M12,12L10.5,17L7,14L2,20H22L17,14L13.5,17L12,12Z"/>
+                  </svg>
+                  GPS Tracking & Location
+                </h5>
+                <div class="d-flex align-items-center gap-3">
+                  <!-- GPS Status Badge -->
+                  <span class="badge" :class="gpsEnabled ? 'bg-success' : 'bg-danger'" x-text="gpsEnabled ? 'GPS Enabled' : 'GPS Disabled'"></span>
+                  
+                  <!-- GPS Toggle Button -->
+                  <button class="btn btn-outline-primary" 
+                          :disabled="loading"
+                          @click="toggleGPS()">
+                    <span x-show="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span x-text="gpsEnabled ? 'Disable GPS' : 'Enable GPS'"></span>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="card-body">
+                <!-- GPS Controls -->
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label for="locationInterval" class="form-label">Location Update Interval (seconds)</label>
+                    <div class="input-group">
+                      <input type="number" 
+                             class="form-control" 
+                             id="locationInterval" 
+                             x-model="locationInterval" 
+                             min="5" 
+                             max="3600"
+                             :disabled="loading">
+                      <button class="btn btn-outline-secondary" 
+                              :disabled="loading"
+                              @click="setLocationInterval()">
+                        <span x-show="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Update
+                      </button>
+                    </div>
+                    <div class="form-text">Update interval between 5 seconds and 1 hour</div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <label class="form-label">Actions</label>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-success" 
+                              :disabled="loading || !gpsEnabled"
+                              @click="getCurrentLocation()">
+                        <span x-show="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Get Current Location
+                      </button>
+                      <button class="btn btn-info" 
+                              :disabled="loading"
+                              @click="refreshMap()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                        </svg>
+                        Refresh Map
+                      </button>
+                    </div>
+                    
+                    <!-- Cell Tower Legend -->
+                    <div class="mt-3">
+                      <label class="form-label">Cell Tower Legend</label>
+                      <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                          <div style="width: 12px; height: 12px; background: #e74c3c; border-radius: 50%; border: 2px solid white; margin-right: 8px;"></div>
+                          <small>Maroc Telecom</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                          <div style="width: 12px; height: 12px; background: #f39c12; border-radius: 50%; border: 2px solid white; margin-right: 8px;"></div>
+                          <small>Orange</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                          <div style="width: 12px; height: 12px; background: #9b59b6; border-radius: 50%; border: 2px solid white; margin-right: 8px;"></div>
+                          <small>Inwi</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                          <div style="width: 12px; height: 12px; background: #95a5a6; border-radius: 50%; border: 2px dashed white; margin-right: 8px;"></div>
+                          <small>Demo Data</small>
+                        </div>
+                      </div>
+                      <div class="mt-2">
+                        <small class="text-muted">Note: Demo data shown when CellMapper API is unavailable</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Current Location Info -->
+                <div class="row" x-show="currentLocation.latitude && currentLocation.longitude">
+                  <div class="col-12">
+                    <div class="alert alert-info">
+                      <h6 class="alert-heading">Current Location</h6>
+                      <div class="row">
+                        <div class="col-md-3">
+                          <strong>Latitude:</strong> <span x-text="currentLocation.latitude"></span>
+                        </div>
+                        <div class="col-md-3">
+                          <strong>Longitude:</strong> <span x-text="currentLocation.longitude"></span>
+                        </div>
+                        <div class="col-md-3">
+                          <strong>Altitude:</strong> <span x-text="currentLocation.altitude"></span>m
+                        </div>
+                        <div class="col-md-3">
+                          <strong>Last Update:</strong> <span x-text="currentLocation.timestamp"></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">Location Map with Cell Towers</h6>
+                <small class="text-muted">Cell towers from CellMapper.net - Zoom in to level 10+ to see towers</small>
+              </div>
+              <div class="card-body">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/sidebar.js"></script>
+    <script src="js/dark-mode.js"></script>
+    
+    <script>
+      function gpsComponent() {
+        return {
+          loading: false,
+          gpsEnabled: false,
+          locationInterval: 30,
+          currentLocation: {
+            latitude: null,
+            longitude: null,
+            altitude: null,
+            timestamp: null
+          },
+          map: null,
+          locationMarker: null,
+          cellTowersLayer: null,
+          
+          async init() {
+            await this.checkGPSStatus();
+            this.initializeMap();
+            
+            // Auto-refresh location every 30 seconds if GPS is enabled
+            setInterval(() => {
+              if (this.gpsEnabled && !this.loading) {
+                this.getCurrentLocation();
+              }
+            }, this.locationInterval * 1000);
+          },
+          
+          async checkGPSStatus() {
+            try {
+              this.loading = true;
+              const response = await fetch('/cgi-bin/user_atcommand', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'command=AT%2BQGPS%3F'
+              });
+              
+              const data = await response.text();
+              console.log('GPS Status Response:', data);
+              
+              // Parse +QGPS: 0 (disabled) or +QGPS: 1 (enabled)
+              const match = data.match(/\+QGPS:\s*(\d+)/);
+              if (match) {
+                this.gpsEnabled = match[1] === '1';
+              }
+              
+              if (this.gpsEnabled) {
+                await this.getCurrentLocation();
+              }
+            } catch (error) {
+              console.error('Error checking GPS status:', error);
+            } finally {
+              this.loading = false;
+            }
+          },
+          
+          async toggleGPS() {
+            try {
+              this.loading = true;
+              const command = this.gpsEnabled ? 'AT%2BQGPS%3D2' : 'AT%2BQGPS%3D1';
+              
+              const response = await fetch('/cgi-bin/user_atcommand', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `command=${command}`
+              });
+              
+              const data = await response.text();
+              console.log('GPS Toggle Response:', data);
+              
+              if (data.includes('OK')) {
+                this.gpsEnabled = !this.gpsEnabled;
+                
+                if (this.gpsEnabled) {
+                  // Wait a moment for GPS to initialize, then get location
+                  setTimeout(() => {
+                    this.getCurrentLocation();
+                  }, 2000);
+                } else {
+                  // Clear current location when GPS is disabled
+                  this.currentLocation = {
+                    latitude: null,
+                    longitude: null,
+                    altitude: null,
+                    timestamp: null
+                  };
+                  if (this.locationMarker) {
+                    this.map.removeLayer(this.locationMarker);
+                    this.locationMarker = null;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error toggling GPS:', error);
+            } finally {
+              this.loading = false;
+            }
+          },
+          
+          async setLocationInterval() {
+            try {
+              this.loading = true;
+              // Here you would implement AT command to set GPS reporting interval
+              // For now, just update the local interval
+              console.log(`Setting location interval to ${this.locationInterval} seconds`);
+              
+              // You might use AT+QGPSCFG or similar command here
+              // const command = `AT%2BQGPSCFG%3D%22interval%22%2C${this.locationInterval}`;
+              
+              this.loading = false;
+            } catch (error) {
+              console.error('Error setting location interval:', error);
+              this.loading = false;
+            }
+          },
+          
+          async getCurrentLocation() {
+            if (!this.gpsEnabled) return;
+            
+            try {
+              this.loading = true;
+              const response = await fetch('/cgi-bin/user_atcommand', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'command=AT%2BQGPSLOC%3F'
+              });
+              
+              const data = await response.text();
+              console.log('Location Response:', data);
+              
+              // Parse +QGPSLOC: 212317.00,2604.9895N,09822.3022W,0.8,71.4,3,,0.0,0.0,251025,16
+              const match = data.match(/\+QGPSLOC:\s*([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)/);
+              if (match) {
+                const [, time, latStr, lonStr, hdop, altitude] = match;
+                
+                // Parse latitude (e.g., "2604.9895N" -> 26.082825)
+                const latMatch = latStr.match(/(\d+)(\d{2}\.\d+)([NS])/);
+                if (latMatch) {
+                  const [, degrees, minutes, direction] = latMatch;
+                  let latitude = parseInt(degrees) + parseFloat(minutes) / 60;
+                  if (direction === 'S') latitude = -latitude;
+                  
+                  // Parse longitude (e.g., "09822.3022W" -> -98.372037)
+                  const lonMatch = lonStr.match(/(\d+)(\d{2}\.\d+)([EW])/);
+                  if (lonMatch) {
+                    const [, degrees, minutes, direction] = lonMatch;
+                    let longitude = parseInt(degrees) + parseFloat(minutes) / 60;
+                    if (direction === 'W') longitude = -longitude;
+                    
+                    this.currentLocation = {
+                      latitude: latitude.toFixed(6),
+                      longitude: longitude.toFixed(6),
+                      altitude: parseFloat(altitude).toFixed(1),
+                      timestamp: new Date().toLocaleString()
+                    };
+                    
+                    this.updateMapLocation(latitude, longitude);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Error getting current location:', error);
+            } finally {
+              this.loading = false;
+            }
+          },
+          
+          initializeMap() {
+            // Initialize map centered on a default location
+            this.map = L.map('map').setView([39.8283, -98.5795], 4); // Center of USA
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Cell towers from <a href="https://cellmapper.net">CellMapper</a>'
+            }).addTo(this.map);
+            
+            // Initialize cell towers layer
+            this.loadCellTowers();
+            
+            // Auto-reload cell towers when map is moved or zoomed
+            this.map.on('moveend', () => {
+              // Only reload if zoom level is high enough to show detailed towers
+              if (this.map.getZoom() >= 10) {
+                this.loadCellTowers();
+              }
+            });
+            
+            this.map.on('zoomend', () => {
+              if (this.map.getZoom() >= 10) {
+                this.loadCellTowers();
+              } else {
+                // Clear towers at low zoom levels to avoid clutter
+                if (this.cellTowersLayer) {
+                  this.cellTowersLayer.clearLayers();
+                }
+              }
+            });
+          },
+          
+          updateMapLocation(lat, lon) {
+            // Remove existing location marker
+            if (this.locationMarker) {
+              this.map.removeLayer(this.locationMarker);
+            }
+            
+            // Add new location marker
+            this.locationMarker = L.marker([lat, lon], {
+              title: 'Current Location'
+            }).addTo(this.map);
+            
+            this.locationMarker.bindPopup(`
+              <strong>Current Location</strong><br>
+              Lat: ${lat}<br>
+              Lon: ${lon}<br>
+              Alt: ${this.currentLocation.altitude}m<br>
+              Updated: ${this.currentLocation.timestamp}
+            `);
+            
+            // Center map on location
+            this.map.setView([lat, lon], 13);
+          },
+          
+          async loadCellTowers() {
+            try {
+              // Clear existing towers
+              if (this.cellTowersLayer) {
+                this.map.removeLayer(this.cellTowersLayer);
+              }
+              this.cellTowersLayer = L.layerGroup().addTo(this.map);
+              
+              // Only load towers if zoomed in enough
+              if (this.map.getZoom() < 10) {
+                console.log('Zoom level too low for cell towers');
+                return;
+              }
+              
+              // Get current map bounds
+              const bounds = this.map.getBounds();
+              const ne = bounds.getNorthEast();
+              const sw = bounds.getSouthWest();
+              
+              // Check if bounds are reasonable (not too large)
+              const latDiff = ne.lat - sw.lat;
+              const lonDiff = ne.lng - sw.lng;
+              
+              if (latDiff > 1 || lonDiff > 1) {
+                console.log('Map bounds too large for cell tower query');
+                return;
+              }
+              
+              console.log(`Loading cell towers for bounds: ${sw.lat},${sw.lng} to ${ne.lat},${ne.lng}`);
+              
+              // Get current operator info (you might want to make this configurable)
+              await this.loadCellTowersForOperator(604, 2, 'LTE', ne, sw); // Morocco Maroc Telecom LTE
+              await this.loadCellTowersForOperator(604, 1, 'LTE', ne, sw); // Morocco Orange LTE
+              await this.loadCellTowersForOperator(604, 0, 'LTE', ne, sw); // Morocco Inwi LTE
+              
+              // Also try loading 5G towers if available
+              await this.loadCellTowersForOperator(604, 2, '5G NR', ne, sw);
+              await this.loadCellTowersForOperator(604, 1, '5G NR', ne, sw);
+              await this.loadCellTowersForOperator(604, 0, '5G NR', ne, sw);
+              
+            } catch (error) {
+              console.error('Error loading cell towers:', error);
+              // Fallback to example towers if API fails
+              this.addExampleCellTowers();
+            }
+          },
+          
+          async loadCellTowersForOperator(mcc, mnc, rat, ne, sw) {
+            try {
+              console.log(`Fetching cell towers for MCC:${mcc} MNC:${mnc} RAT:${rat}`);
+              
+              // Use our CGI proxy to avoid CORS issues
+              const params = new URLSearchParams({
+                MCC: mcc,
+                MNC: mnc,
+                RAT: rat,
+                boundsNELatitude: ne.lat,
+                boundsNELongitude: ne.lng,
+                boundsSWLatitude: sw.lat,
+                boundsSWLongitude: sw.lng
+              });
+              
+              const response = await fetch(`/cgi-bin/get_cell_towers?${params}`, {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json',
+                },
+              });
+              
+              const data = await response.json();
+              
+              // Handle CellMapper API response format
+              let towers = [];
+              if (data.error) {
+                console.warn(`API Error for ${mcc}-${mnc}:`, data.error);
+                if (data.fallback) {
+                  // Generate mock data when API is rate limited
+                  towers = this.generateMockTowers(mcc, mnc, rat, ne, sw);
+                }
+              } else if (data.responseData && Array.isArray(data.responseData)) {
+                // CellMapper format: {statusCode: "OKAY", responseData: [...]}
+                towers = data.responseData;
+              } else if (Array.isArray(data)) {
+                // Direct array format
+                towers = data;
+              }
+              
+              console.log(`Found ${towers.length} towers for ${mcc}-${mnc}${towers.some(t => t.mock) ? ' (mock data)' : ''}`);
+              
+              if (towers.length > 0) {
+                this.addCellTowersToMap(towers, mcc, mnc, rat);
+              }
+              
+            } catch (error) {
+              console.error(`Error fetching towers for ${mcc}-${mnc}:`, error);
+              
+              // Generate mock data as final fallback
+              const mockTowers = this.generateMockTowers(mcc, mnc, rat, ne, sw);
+              if (mockTowers.length > 0) {
+                console.log(`Using mock data for ${mcc}-${mnc}`);
+                this.addCellTowersToMap(mockTowers, mcc, mnc, rat);
+              }
+            }
+          },
+          
+          generateMockTowers(mcc, mnc, rat, ne, sw) {
+            const operatorNames = {
+              '604-2': 'Maroc Telecom',
+              '604-1': 'Orange', 
+              '604-0': 'Inwi',
+            };
+            
+            const operatorKey = `${mcc}-${mnc}`;
+            const operatorName = operatorNames[operatorKey] || `${mcc}-${mnc}`;
+            
+            // Generate 2-3 mock towers within the bounds
+            const towers = [];
+            const centerLat = (ne.lat + sw.lat) / 2;
+            const centerLon = (ne.lng + sw.lng) / 2;
+            const latRange = ne.lat - sw.lat;
+            const lonRange = ne.lng - sw.lng;
+            
+            for (let i = 0; i < 3; i++) {
+              const offsetLat = (Math.random() - 0.5) * latRange * 0.8;
+              const offsetLon = (Math.random() - 0.5) * lonRange * 0.8;
+              
+              towers.push({
+                latitude: centerLat + offsetLat,
+                longitude: centerLon + offsetLon,
+                siteID: `MOCK${String(i + 1).padStart(3, '0')}`,
+                RAT: rat,
+                RATSubType: `${rat}-A`,
+                channels: [1800 + (i * 100), 2100 + (i * 50)],
+                bandwidths: [20, 15],
+                bandNumbers: [3, 1],
+                visible: true,
+                firstseendate: Date.now() - (i * 86400000), // Different days
+                lastseendate: Date.now(),
+                mock: true,
+                operator: operatorName
+              });
+            }
+            
+            return towers;
+          },
+          
+          async loadCellTowersViaCORSProxy(mcc, mnc, rat, ne, sw) {
+            try {
+              const apiUrl = `https://api.cellmapper.net/v6/getTowers?MCC=${mcc}&MNC=${mnc}&RAT=${rat}&boundsNELatitude=${ne.lat}&boundsNELongitude=${ne.lng}&boundsSWLatitude=${sw.lat}&boundsSWLongitude=${sw.lng}&filterFrequency=false&showOnlyMine=false&showUnverifiedOnly=false&showENDCOnly=false&cache=${Date.now()}`;
+              const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+              
+              const response = await fetch(proxyUrl);
+              const data = await response.json();
+              
+              if (data.contents) {
+                const towers = JSON.parse(data.contents);
+                console.log(`Found ${towers.length || 0} towers via proxy for ${mcc}-${mnc}`);
+                if (towers && Array.isArray(towers)) {
+                  this.addCellTowersToMap(towers, mcc, mnc, rat);
+                }
+              }
+            } catch (error) {
+              console.error(`Error fetching towers via proxy for ${mcc}-${mnc}:`, error);
+            }
+          },
+          
+          addCellTowersToMap(towers, mcc, mnc, rat) {
+            const operatorColors = {
+              '604-2': '#e74c3c', // Maroc Telecom - Red
+              '604-1': '#f39c12', // Orange - Orange
+              '604-0': '#9b59b6', // Inwi - Purple
+            };
+            
+            const operatorNames = {
+              '604-2': 'Maroc Telecom',
+              '604-1': 'Orange',
+              '604-0': 'Inwi',
+            };
+            
+            const operatorKey = `${mcc}-${mnc}`;
+            const color = operatorColors[operatorKey] || '#3498db';
+            const operatorName = operatorNames[operatorKey] || `${mcc}-${mnc}`;
+            
+            towers.forEach(tower => {
+              // CellMapper uses 'latitude' and 'longitude' fields
+              const lat = tower.latitude || tower.lat;
+              const lon = tower.longitude || tower.lon;
+              
+              if (lat && lon) {
+                // Use different styling for mock towers
+                const isMock = tower.mock;
+                const towerColor = isMock ? '#95a5a6' : color; // Gray for mock towers
+                const borderStyle = isMock ? 'dashed' : 'solid';
+                
+                const towerIcon = L.divIcon({
+                  className: 'cell-tower-icon',
+                  html: `<div style="background: ${towerColor}; width: 8px; height: 8px; border-radius: 50%; border: 2px ${borderStyle} white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`,
+                  iconSize: [12, 12],
+                  iconAnchor: [6, 6]
+                });
+                
+                // Extract frequency information from channels array
+                const frequencies = tower.channels ? tower.channels.join(', ') + ' MHz' : 'N/A';
+                const bandwidths = tower.bandwidths ? tower.bandwidths.filter(b => b !== null).join(', ') + ' MHz' : 'N/A';
+                const bands = tower.bandNumbers ? tower.bandNumbers.join(', ') : 'N/A';
+                
+                const popup = `
+                  <div style="min-width: 200px;">
+                    <h6 style="margin: 0 0 8px 0; color: ${towerColor};">${operatorName} ${rat} Tower ${isMock ? '(Demo)' : ''}</h6>
+                    ${isMock ? '<div style="color: #95a5a6; font-style: italic; margin-bottom: 8px;">⚠️ Demo data - CellMapper API unavailable</div>' : ''}
+                    <div><strong>Site ID:</strong> ${tower.siteID || tower.site_id || 'N/A'}</div>
+                    <div><strong>RAT:</strong> ${tower.RAT || rat}</div>
+                    <div><strong>Subtype:</strong> ${tower.RATSubType || 'N/A'}</div>
+                    <div><strong>Frequencies:</strong> ${frequencies}</div>
+                    <div><strong>Bandwidths:</strong> ${bandwidths}</div>
+                    <div><strong>Bands:</strong> ${bands}</div>
+                    <div><strong>Coordinates:</strong> ${lat.toFixed(6)}, ${lon.toFixed(6)}</div>
+                    <div><strong>Visible:</strong> ${tower.visible !== false ? 'Yes' : 'No'}</div>
+                    ${tower.firstseendate ? `<div><strong>First Seen:</strong> ${new Date(tower.firstseendate).toLocaleDateString()}</div>` : ''}
+                    ${tower.lastseendate ? `<div><strong>Last Seen:</strong> ${new Date(tower.lastseendate).toLocaleDateString()}</div>` : ''}
+                  </div>
+                `;
+                
+                L.marker([lat, lon], { icon: towerIcon })
+                  .bindPopup(popup)
+                  .addTo(this.cellTowersLayer);
+              }
+            });
+          },
+          
+          addExampleCellTowers() {
+            // Fallback example towers if API is not available
+            console.log('Using example towers as fallback');
+            const exampleTowers = [
+              { lat: 39.8283, lon: -98.5795, name: "Example Tower 1", operator: "Example" },
+              { lat: 39.8400, lon: -98.5900, name: "Example Tower 2", operator: "Example" },
+              { lat: 39.8200, lon: -98.5600, name: "Example Tower 3", operator: "Example" }
+            ];
+            
+            exampleTowers.forEach(tower => {
+              const towerIcon = L.divIcon({
+                className: 'cell-tower-icon',
+                html: `<div style="background: #95a5a6; width: 8px; height: 8px; border-radius: 50%; border: 2px solid white;"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+              });
+              
+              L.marker([tower.lat, tower.lon], { icon: towerIcon })
+                .bindPopup(`<strong>Example Cell Tower</strong><br>${tower.name}<br>Lat: ${tower.lat}<br>Lon: ${tower.lon}`)
+                .addTo(this.cellTowersLayer);
+            });
+          },
+          
+          refreshMap() {
+            if (this.gpsEnabled) {
+              this.getCurrentLocation();
+            }
+            
+            // Reload cell towers for current map bounds
+            this.loadCellTowers();
+          },
+          
+          // Add method to get current operator info from modem
+          async getCurrentOperatorInfo() {
+            try {
+              const response = await fetch('/cgi-bin/user_atcommand', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'command=AT%2BCOPS%3F'
+              });
+              
+              const data = await response.text();
+              console.log('Operator Response:', data);
+              
+              // Parse +COPS: 0,0,"Maroc Telecom",7 or similar
+              const match = data.match(/\+COPS:\s*\d+,\d+,"([^"]+)",(\d+)/);
+              if (match) {
+                const operatorName = match[1];
+                const act = match[2]; // Access technology
+                console.log(`Current operator: ${operatorName}, ACT: ${act}`);
+                return { operator: operatorName, act: act };
+              }
+              
+              return null;
+            } catch (error) {
+              console.error('Error getting operator info:', error);
+              return null;
+            }
+          },
+          
+          // Method to determine MCC/MNC based on operator
+          getOperatorCodes(operatorName) {
+            const operators = {
+              // Morocco
+              'Maroc Telecom': { mcc: 604, mnc: 2 },
+              'Orange': { mcc: 604, mnc: 1 },
+              'Inwi': { mcc: 604, mnc: 0 },
+              
+              // USA (examples)
+              'Verizon': { mcc: 310, mnc: 4 },
+              'AT&T': { mcc: 310, mnc: 410 },
+              'T-Mobile': { mcc: 310, mnc: 260 },
+              
+              // Add more operators as needed
+            };
+            
+            return operators[operatorName] || { mcc: 604, mnc: 2 }; // Default to Maroc Telecom
+          }
+        }
+      }
+    </script>
+    
+    <style>
+      .cell-tower-icon {
+        background: transparent !important;
+        border: none !important;
+      }
+      
+      #map {
+        border-radius: 0.375rem;
+      }
+      
+      .leaflet-popup-content {
+        margin: 8px 12px;
+        line-height: 1.4;
+      }
+    </style>
+  </body>
+</html>

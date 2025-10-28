@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# Content type for JSON response
+echo "Content-Type: application/json"
+echo ""
+
+# Simple rate limiting - create a temp file to track requests
+RATE_LIMIT_FILE="/tmp/cellmapper_last_request"
+RATE_LIMIT_SECONDS=2  # Minimum 2 seconds between requests (reduced from 5)
+
+# Check if we're being rate limited
+if [ -f "$RATE_LIMIT_FILE" ]; then
+    LAST_REQUEST=$(cat "$RATE_LIMIT_FILE")
+    CURRENT_TIME=$(date +%s)
+    TIME_DIFF=$((CURRENT_TIME - LAST_REQUEST))
+    
+    if [ $TIME_DIFF -lt $RATE_LIMIT_SECONDS ]; then
+        echo '{"error": "Rate limited - please wait '$(($RATE_LIMIT_SECONDS - $TIME_DIFF))' seconds"}'
+        exit 1
+    fi
+fi
+
+# Update the rate limit file
+echo $(date +%s) > "$RATE_LIMIT_FILE"
+
+# Generate random user agent
+USER_AGENTS=(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/91.0.864.59"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (Android 11; Mobile; rv:89.0) Gecko/89.0 Firefox/89.0"
+    "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0"
+)
+
+# Select random user agent
+RANDOM_INDEX=$((RANDOM % ${#USER_AGENTS[@]}))
+USER_AGENT="${USER_AGENTS[$RANDOM_INDEX]}"
+
+# Add small random delay (0-2 seconds) to avoid appearing automated
+DELAY=$((RANDOM % 3))
+sleep $DELAY
+
+# Parse query string parameters
+if [ "$REQUEST_METHOD" = "GET" ]; then
+    QUERY_STRING="$QUERY_STRING"
+elif [ "$REQUEST_METHOD" = "POST" ]; then
+    read QUERY_STRING
+fi
+
+# Extract parameters from query string
+MCC=$(echo "$QUERY_STRING" | sed -n 's/.*MCC=\([^&]*\).*/\1/p')
+MNC=$(echo "$QUERY_STRING" | sed -n 's/.*MNC=\([^&]*\).*/\1/p')
+RAT=$(echo "$QUERY_STRING" | sed -n 's/.*RAT=\([^&]*\).*/\1/p' | sed 's/%20/ /g')
+BOUNDS_NE_LAT=$(echo "$QUERY_STRING" | sed -n 's/.*boundsNELatitude=\([^&]*\).*/\1/p')
+BOUNDS_NE_LON=$(echo "$QUERY_STRING" | sed -n 's/.*boundsNELongitude=\([^&]*\).*/\1/p')
+BOUNDS_SW_LAT=$(echo "$QUERY_STRING" | sed -n 's/.*boundsSWLatitude=\([^&]*\).*/\1/p')
+BOUNDS_SW_LON=$(echo "$QUERY_STRING" | sed -n 's/.*boundsSWLongitude=\([^&]*\).*/\1/p')
+
+# Validate required parameters
+if [ -z "$MCC" ] || [ -z "$MNC" ] || [ -z "$RAT" ] || [ -z "$BOUNDS_NE_LAT" ] || [ -z "$BOUNDS_NE_LON" ] || [ -z "$BOUNDS_SW_LAT" ] || [ -z "$BOUNDS_SW_LON" ]; then
+    echo '{"error": "Missing required parameters"}'
+    exit 1
+fi
+
+# URL encode RAT parameter
+RAT_ENCODED=$(echo "$RAT" | sed 's/ /%20/g')
+
+# Generate random cache parameter to avoid caching
+CACHE_PARAM=$(date +%s)$(($RANDOM % 1000))
+
+# Build CellMapper API URL
+API_URL="https://api.cellmapper.net/v6/getTowers?MCC=${MCC}&MNC=${MNC}&RAT=${RAT_ENCODED}&boundsNELatitude=${BOUNDS_NE_LAT}&boundsNELongitude=${BOUNDS_NE_LON}&boundsSWLatitude=${BOUNDS_SW_LAT}&boundsSWLongitude=${BOUNDS_SW_LON}&filterFrequency=false&showOnlyMine=false&showUnverifiedOnly=false&showENDCOnly=false&cache=${CACHE_PARAM}"
+
+# Make the API call using wget or curl
+if command -v curl >/dev/null 2>&1; then
+    # Use curl if available
+    RESPONSE=$(curl -s -H "Accept: application/json" -H "User-Agent: $USER_AGENT" "$API_URL" 2>/dev/null)
+elif command -v wget >/dev/null 2>&1; then
+    # Use wget if curl is not available
+    RESPONSE=$(wget -q -O - --header="Accept: application/json" --header="User-Agent: $USER_AGENT" "$API_URL" 2>/dev/null)
+else
+    # No HTTP client available
+    echo '{"error": "No HTTP client available"}'
+    exit 1
+fi
+
+# Check if the response is valid and contains data
+if [ $? -eq 0 ] && [ -n "$RESPONSE" ]; then
+    # Check if response contains an error or needs CAPTCHA
+    if echo "$RESPONSE" | grep -q "NEED_RECAPTCHA\|Too many requests\|Rate limited"; then
+        echo '{"error": "Rate limited - too many requests to CellMapper API", "fallback": true}'
+        exit 1
+    fi
+    
+    # Return the full response - let JavaScript handle the parsing
+    echo "$RESPONSE"
+else
+    # If the above fails, return mock data for testing (generate coordinates near the center of bounds)
+    CENTER_LAT=$(echo "scale=6; ($BOUNDS_NE_LAT + $BOUNDS_SW_LAT) / 2" | bc 2>/dev/null || echo "30.29")
+    CENTER_LON=$(echo "scale=6; ($BOUNDS_NE_LON + $BOUNDS_SW_LON) / 2" | bc 2>/dev/null || echo "-9.45")
+    
+    echo '[
+        {
+            "latitude": '$CENTER_LAT',
+            "longitude": '$CENTER_LON',
+            "siteID": "MOCK001",
+            "RAT": "'$RAT'",
+            "RATSubType": "'$RAT'-A",
+            "channels": [1800, 2100],
+            "bandwidths": [20, 15],
+            "bandNumbers": [3, 1],
+            "visible": true,
+            "firstseendate": '$(date +%s)'000',
+            "lastseendate": '$(date +%s)'000',
+            "mock": true
+        }
+    ]'
+fi
