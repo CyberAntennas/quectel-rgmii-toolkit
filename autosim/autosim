@@ -17,18 +17,20 @@ log() {
 }
 
 get_current_slot() {
+	kill $(pgrep -f "cat /dev/ttyOUT2") 2>/dev/null
     # Extract ONLY the digit after +QUIMSLOT:
     $ATCMD "AT+QUIMSLOT?" 2>/dev/null | grep -oE '\+QUIMSLOT: [0-9]' | grep -oE '[0-9]'
 }
 
 get_sim_status() {
+	kill $(pgrep -f "cat /dev/ttyOUT2") 2>/dev/null
     # Extract ONLY the pattern digit,digit (ignores everything else including ANSI codes)
     $ATCMD "AT+QSIMSTAT?" 2>/dev/null | grep -oE '[0-9],[0-9]' | head -1
 }
 
 is_sim_inserted() {
     local status="$1"
-    
+    kill $(pgrep -f "cat /dev/ttyOUT2") 2>/dev/null
     # Extract first and second values and strip all whitespace
     local first=$(echo "$status" | cut -d',' -f1 | tr -d ' \t\r\n')
     local second=$(echo "$status" | cut -d',' -f2 | tr -d ' \t\r\n')
@@ -66,6 +68,7 @@ is_sim_inserted() {
 
 switch_slot() {
     local slot="$1"
+	kill $(pgrep -f "cat /dev/ttyOUT2") 2>/dev/null
     log "Switching to slot $slot..."
     local response=$($ATCMD "AT+QUIMSLOT=$slot" 2>&1)
     
@@ -144,7 +147,6 @@ fi
 while true; do
     CURSLOT=$(get_current_slot)
     QSTAT=$(get_sim_status)
-    
     if [ -z "$CURSLOT" ]; then
         log "ERROR: Could not read current slot, retrying..."
         sleep $LOOP_SLEEP
