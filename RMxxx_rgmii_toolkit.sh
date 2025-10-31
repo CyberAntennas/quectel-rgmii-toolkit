@@ -2,7 +2,7 @@
 
 # Define toolkit paths
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usrdata/root/bin
-GITUSER="kmoz000"
+GITUSER="iamromulan"
 REPONAME="quectel-rgmii-toolkit"
 GITTREE="SDXLEMUR"
 GITMAINTREE="SDXLEMUR"
@@ -745,6 +745,58 @@ install_sshd() {
 	echo -e "\e[1;32m SSHd has been updated/installed.\e[0m"
 }
 
+install_autosim() {
+    if [ -d "/usrdata/autosim" ]; then
+        echo -e "\e[1;31mAutosim is currently installed.\e[0m"
+        echo -e "Do you want to update or uninstall?"
+        echo -e "1.) Update"
+        echo -e "2.) Uninstall"
+        read -p "Select an option (1 or 2): " autosim_choice
+
+        case $autosim_choice in
+            1)
+				echo -e "\e[1;32mUpdating autosim from the $GITTREE branch\e[0m"
+                ;;
+            2)
+                echo -e "\e[1;31mUninstalling Autosim...\e[0m"
+                systemctl stop autosim
+                systemctl disable autosim
+                remount_rw
+                rm -f /sbin/autosim
+                rm -f /lib/systemd/system/autosim.service
+                rm -f /lib/systemd/system/multi-user.target.wants/autosim.service
+                systemctl daemon-reload
+                remount_ro
+                rm -rf /usrdata/autosim
+                echo -e "\e[1;32mAutosim has been uninstalled successfully.\e[0m"
+                return 0
+                ;;
+            *)
+                echo -e "\e[1;31mInvalid option. Please select 1 or 2.\e[0m"
+                return 1
+                ;;
+        esac
+    fi
+
+    # Proceed with installation or updating if not uninstalling
+    mkdir -p /usrdata/autosim > /dev/null 2>&1
+    mkdir -p /usrdata/simpleupdates > /dev/null 2>&1
+	mkdir -p /usrdata/simpleupdates/scripts > /dev/null 2>&1
+	
+	echo -e "\e[1;32mDownloading autosim files...\e[0m"
+	wget -O /usrdata/autosim/autosim $GITROOT/autosim/autosim && chmod +x /usrdata/autosim/autosim
+	wget -O /usrdata/autosim/autosim.service $GITROOT/autosim/autosim.service
+	wget -O /usrdata/simpleupdates/scripts/update_autosim.sh $GITROOT/simpleupdates/scripts/update_autosim.sh && chmod +x /usrdata/simpleupdates/scripts/update_autosim.sh
+	
+	echo -e "\e[1;32mInstalling/updating: Autosim\e[0m"
+	echo -e "\e[1;32mPlease Wait....\e[0m"
+	/usrdata/simpleupdates/scripts/update_autosim.sh install
+	echo -e "\e[1;32mAutosim has been installed/updated successfully.\e[0m"
+	echo -e "\e[1;36mAutosim will automatically switch SIM slots when a SIM is detected.\e[0m"
+	echo -e "\e[1;36mCheck status with: systemctl status autosim\e[0m"
+	echo -e "\e[1;36mView logs with: journalctl -u autosim -f\e[0m"
+}
+
 
 # Main menu
 
@@ -824,7 +876,7 @@ echo "                                           :+##+.            "
 
     echo -e "\e[92m"
     echo "Welcome to iamromulan's RGMII Toolkit script for Quectel RMxxx Series modems!"
-    echo "Visit https://github.com/kmoz000 for more!"
+    echo "Visit https://github.com/iamromulan for more!"
     echo -e "\e[0m"
     echo "Select an option:"
     echo -e "\e[0m"
@@ -841,7 +893,8 @@ echo "                                           :+##+.            "
     echo -e "\e[92m11) Install Speedtest.net CLI app (speedtest command)\e[0m" # Light Green
     echo -e "\e[92m12) Install Fast.com CLI app (fast command)(tops out at 40Mbps)\e[0m" # Light Green
     echo -e "\e[92m13) Install OpenSSH Server\e[0m" # Light Green
-    echo -e "\e[93m14) Exit\e[0m" # Yellow (repeated color for exit option)
+    echo -e "\e[96m14) Install/Update/Uninstall Autosim (Automatic SIM Slot Switcher)\e[0m" # Cyan
+    echo -e "\e[93m15) Exit\e[0m" # Yellow (repeated color for exit option)
     read -p "Enter your choice: " choice
 
     case $choice in
@@ -935,6 +988,9 @@ echo "                                           :+##+.            "
 			install_sshd
 			;;
 		14) 
+			install_autosim
+			;;
+		15) 
 			echo -e "\e[1;32mGoodbye!\e[0m"
      	    break
             ;;    
