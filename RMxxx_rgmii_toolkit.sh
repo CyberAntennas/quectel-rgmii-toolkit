@@ -2,7 +2,7 @@
 
 # Define toolkit paths
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/opt/bin:/opt/sbin:/usrdata/root/bin
-GITUSER="iamromulan"
+GITUSER="CyberAntennas"
 REPONAME="quectel-rgmii-toolkit"
 GITTREE="SDXLEMUR"
 GITMAINTREE="SDXLEMUR"
